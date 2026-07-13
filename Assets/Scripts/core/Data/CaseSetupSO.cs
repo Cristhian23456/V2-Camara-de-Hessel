@@ -18,5 +18,5 @@ public class CaseSetupSO : ScriptableObject
     public bool[] respuestasCorrectasDSM;
     
     [Header("Inventario de Beck")]
-    public int puntajeCorrectoBeck = 11;
+    public int puntajeCorrectoBeck = 32;
 }

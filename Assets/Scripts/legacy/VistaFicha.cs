@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Xml.Linq;
 using TMPro;
@@ -97,12 +97,18 @@ public class VistaFicha : MonoBehaviour
             panel.transform.localScale = Vector3.one;
         }
         
-        btnContinuar.transform.GetChild(0).GetComponent<Button>().onClick.AddListener(() =>
-        {
-            ActivarDesactivarPantalla();
-        }) ;
-        estado = false;
         GameObject panel1 = (GameObject)Instantiate(btnContinuar);
+        
+        Button cloneButton = panel1.transform.GetChild(0).GetComponent<Button>();
+        if (cloneButton != null)
+        {
+            cloneButton.onClick.RemoveAllListeners();
+            cloneButton.onClick.AddListener(() =>
+            {
+                ActivarDesactivarPantalla();
+            });
+        }
+
         panel1.transform.SetParent(ScrollViewContent.transform);
         panel1.transform.localPosition = Vector3.zero;
         panel1.transform.localScale = Vector3.one;

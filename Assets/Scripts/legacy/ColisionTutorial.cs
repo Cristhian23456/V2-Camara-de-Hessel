@@ -48,7 +48,23 @@ public class ColisionTutorial : MonoBehaviour
                 mov.teletransprote();
             }
 
-            StartCoroutine(AutoDismissTutorialMessage());
+            if (playerController == null)
+            {
+                #if UNITY_6000_0_OR_NEWER || UNITY_2023_1_OR_NEWER
+                playerController = FindAnyObjectByType<PlayerController>();
+                #else
+                playerController = FindObjectOfType<PlayerController>();
+                #endif
+            }
+
+            if (playerController != null)
+            {
+                playerController.StartCoroutine(AutoDismissTutorialMessage());
+            }
+            else
+            {
+                StartCoroutine(AutoDismissTutorialMessage());
+            }
         }
     }
 

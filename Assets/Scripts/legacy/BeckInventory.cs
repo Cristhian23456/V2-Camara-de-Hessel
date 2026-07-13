@@ -126,7 +126,7 @@ public class BeckInventory : MonoBehaviour
         }
 
         CaseSetupSO config = apiManager.GetCaseSetup(apiManager.nroCaso);
-        int puntajeCorrecto = config != null ? config.puntajeCorrectoBeck : (listResultados != null && listResultados.Length >= apiManager.nroCaso ? listResultados[apiManager.nroCaso - 1] : 11);
+        int puntajeCorrecto = config != null ? config.puntajeCorrectoBeck : (listResultados != null && listResultados.Length >= apiManager.nroCaso ? listResultados[apiManager.nroCaso - 1] : 32);
 
         if (resultadoIngresado != puntajeCorrecto)
         {
