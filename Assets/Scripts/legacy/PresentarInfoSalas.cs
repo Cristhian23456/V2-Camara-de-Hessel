@@ -99,7 +99,7 @@ public class PresentarInfoSalas : MonoBehaviour
                 btnRect.anchorMin = new Vector2(0.5f, 0f);
                 btnRect.anchorMax = new Vector2(0.5f, 0f);
                 btnRect.pivot = new Vector2(0.5f, 0f);
-                btnRect.anchoredPosition = new Vector2(0f, 35f);
+                btnRect.anchoredPosition = new Vector2(-6f, 50f);
             }
         }
 
@@ -112,7 +112,7 @@ public class PresentarInfoSalas : MonoBehaviour
                 btnRect.anchorMin = new Vector2(0.5f, 0f);
                 btnRect.anchorMax = new Vector2(0.5f, 0f);
                 btnRect.pivot = new Vector2(0.5f, 0f);
-                btnRect.anchoredPosition = new Vector2(0f, 20f);
+                btnRect.anchoredPosition = new Vector2(0f, 50f);
             }
         }
 

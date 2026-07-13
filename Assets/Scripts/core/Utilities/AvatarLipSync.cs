@@ -32,7 +32,7 @@ public class AvatarLipSync : MonoBehaviour
 
         if (audioSource == null)
         {
-            audioSource = FindObjectOfType<AudioSource>();
+            audioSource = FindAnyObjectByType<AudioSource>();
         }
 
         if (skinnedMeshRenderer == null)
