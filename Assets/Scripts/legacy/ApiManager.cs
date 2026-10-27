@@ -111,8 +111,9 @@ public class ApiManager : MonoBehaviour
 
     IEnumerator GetDialogosFromApi(int caso, string fase, Action<List<Dialogos>> callback)
     {
+        float loadStart = Time.realtimeSinceStartup;
         string url = apiUrl + "/get-dialogos?caso=" + caso + "&fase=" + fase;
-        Debug.Log("[ApiManager] Loading dialogs from: " + url);
+        Debug.Log("[ApiManager][TIMING] Start loading dialogs phase " + fase + " at " + loadStart.ToString("F3") + "s");
         
         int maxRetries = 3;
         int retryCount = 0;
@@ -128,7 +129,7 @@ public class ApiManager : MonoBehaviour
                 if (request.result == UnityWebRequest.Result.Success)
                 {
                     string jsonData = request.downloadHandler.text;
-                    Debug.Log("[ApiManager] Dialogs loaded successfully for phase " + fase + " (case " + caso + ")");
+                    Debug.Log("[ApiManager][TIMING] Dialogs loaded successfully for phase " + fase + " (case " + caso + ") in " + (Time.realtimeSinceStartup - loadStart).ToString("F3") + "s");
 
                     try
                     {
@@ -168,7 +169,7 @@ public class ApiManager : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogError("[ApiManager] Error loading dialogs for phase " + fase + " (attempt " + (retryCount + 1) + "/" + maxRetries + "): " + request.error);
+                    Debug.LogError("[ApiManager] Error loading dialogs for phase " + fase + " (attempt " + (retryCount + 1) + "/" + maxRetries + "): " + request.error + " after " + (Time.realtimeSinceStartup - loadStart).ToString("F3") + "s");
                     retryCount++;
                     if (retryCount < maxRetries)
                     {
@@ -187,8 +188,9 @@ public class ApiManager : MonoBehaviour
 
     IEnumerator GetPreguntaById(string preguntaId, Dialogos dialogo)
     {
+        float qStart = Time.realtimeSinceStartup;
         string url = apiUrl + "/get-questionsId/" + preguntaId;
-        Debug.Log("[ApiManager] Loading question: " + preguntaId);
+        Debug.Log("[ApiManager][TIMING] Start loading question " + preguntaId + " at " + qStart.ToString("F3") + "s");
         
         int maxRetries = 2;
         int retryCount = 0;
@@ -204,7 +206,7 @@ public class ApiManager : MonoBehaviour
                 if (request.result == UnityWebRequest.Result.Success)
                 {
                     string preguntaData = request.downloadHandler.text;
-                    Debug.Log("[ApiManager] Question loaded successfully: " + preguntaId);
+                    Debug.Log("[ApiManager][TIMING] Question loaded successfully: " + preguntaId + " in " + (Time.realtimeSinceStartup - qStart).ToString("F3") + "s");
 
                     try
                     {
@@ -225,7 +227,7 @@ public class ApiManager : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogError("[ApiManager] Error loading question " + preguntaId + " (attempt " + (retryCount + 1) + "/" + maxRetries + "): " + request.error);
+                    Debug.LogError("[ApiManager] Error loading question " + preguntaId + " (attempt " + (retryCount + 1) + "/" + maxRetries + "): " + request.error + " after " + (Time.realtimeSinceStartup - qStart).ToString("F3") + "s");
                     retryCount++;
                     if (retryCount < maxRetries)
                     {

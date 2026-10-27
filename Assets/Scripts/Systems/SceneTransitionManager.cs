@@ -46,6 +46,8 @@ public class SceneTransitionManager : MonoBehaviour
 
     private IEnumerator AsyncLoadRoutine(string sceneName, Action onComplete)
     {
+        float transStart = Time.realtimeSinceStartup;
+        Debug.Log("[SceneTransitionManager][TIMING] Scene transition start: " + sceneName + " at " + transStart.ToString("F3") + "s");
         yield return FadeIn();
 
         AsyncOperation operation = SceneManager.LoadSceneAsync(sceneName);
@@ -102,6 +104,7 @@ public class SceneTransitionManager : MonoBehaviour
         {
             progressBar.gameObject.SetActive(false);
         }
+        Debug.Log("[SceneTransitionManager][TIMING] Scene transition complete: " + sceneName + " in " + (Time.realtimeSinceStartup - transStart).ToString("F3") + "s");
         try
         {
             onComplete?.Invoke();
