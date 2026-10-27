@@ -155,6 +155,7 @@ public class PresentarInfoSalas : MonoBehaviour
             // Cargar recursos del caso en segundo plano al llegar a la puerta del consultorio
             if (gameObject.name == "Entrada3" && apiManager != null)
             {
+                Debug.Log("[PresentarInfoSalas] Triggering deferred resource load at " + gameObject.name);
                 apiManager.CargarRecursosCaso();
             }
         }
