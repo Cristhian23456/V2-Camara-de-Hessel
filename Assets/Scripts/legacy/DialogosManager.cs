@@ -336,7 +336,8 @@ public class DialogosManager : MonoBehaviour
 
     private void OnDialogosInicialCargados(List<Dialogos> dialogos)
     {
-        dialogosList = dialogos;
+        Debug.Log("[DialogosManager] Initial dialogs loaded: " + (dialogos != null ? dialogos.Count : 0));
+        dialogosList = dialogos ?? new List<Dialogos>();
         calificacion.preguntasCant = calcularCantidadP();
         d1 = true;
         CheckAllDialogosLoaded();
@@ -344,20 +345,23 @@ public class DialogosManager : MonoBehaviour
 
     private void OnDialogosDesarrolloCargados(List<Dialogos> dialogos)
     {
-        dialogosListDesarrollo = dialogos;
+        Debug.Log("[DialogosManager] Development dialogs loaded: " + (dialogos != null ? dialogos.Count : 0));
+        dialogosListDesarrollo = dialogos ?? new List<Dialogos>();
         d2 = true;
         CheckAllDialogosLoaded();
     }
 
     private void OnDialogosFinCargados(List<Dialogos> dialogos)
     {
-        dialogosListFin = dialogos;
+        Debug.Log("[DialogosManager] Final dialogs loaded: " + (dialogos != null ? dialogos.Count : 0));
+        dialogosListFin = dialogos ?? new List<Dialogos>();
         d3 = true;
         CheckAllDialogosLoaded();
     }
 
     private void CheckAllDialogosLoaded()
     {
+        Debug.Log("[DialogosManager] CheckAllDialogosLoaded: d1=" + d1 + " d2=" + d2 + " d3=" + d3);
         if (d1 && d2 && d3)
         {
             if (btnContinuarDesarrollo != null) btnContinuarDesarrollo.SetActive(false); // Hide the continue button to satisfy user request 2
@@ -376,6 +380,7 @@ public class DialogosManager : MonoBehaviour
                 startDeferred = false;
                 if (deferredPhase != "")
                 {
+                    Debug.Log("[DialogosManager] Executing deferred phase: " + deferredPhase);
                     iniciarFase(deferredPhase);
                     deferredPhase = "";
                 }
@@ -386,6 +391,7 @@ public class DialogosManager : MonoBehaviour
 
     public void iniciarFase(string fase)
     {
+        Debug.Log("[DialogosManager] iniciarFase called: " + fase + " (loaded: d1=" + d1 + " d2=" + d2 + " d3=" + d3 + ")");
         if (!(d1 && d2 && d3))
         {
             // Resources are not loaded yet! Defer the phase initialization.
@@ -398,6 +404,8 @@ public class DialogosManager : MonoBehaviour
                 // Hide any button inside loading panel to prevent manual interference
                 Transform btnTrans = loadingPanel.transform.Find("Button");
                 if (btnTrans != null) btnTrans.gameObject.SetActive(false);
+                Transform btnTransAlt = loadingPanel.transform.Find("btnContinuar");
+                if (btnTransAlt != null) btnTransAlt.gameObject.SetActive(false);
             }
             return;
         }
@@ -846,10 +854,18 @@ public class DialogosManager : MonoBehaviour
 
     public void darFuncionBtnAceptar()
     {
-        if (saveData.modo != "Evaluacion")
+        Debug.Log("[DialogosManager] darFuncionBtnAceptar called (loaded: d1=" + d1 + " d2=" + d2 + " d3=" + d3 + ")");
+        if (saveData != null && saveData.modo != "Evaluacion" && apiManager != null)
         {
-            saveData.updatePartidaUser(fase, System.DateTime.Now.ToString("HH:mm:ss; dd MMMM yyyy"), "Caso " + apiManager.getNroCaso());
-            saveData.fechaIncio = System.DateTime.Now.ToString("HH:mm:ss; dd MMMM yyyy");
+            try
+            {
+                saveData.updatePartidaUser(fase, System.DateTime.Now.ToString("HH:mm:ss; dd MMMM yyyy"), "Caso " + apiManager.getNroCaso());
+                saveData.fechaIncio = System.DateTime.Now.ToString("HH:mm:ss; dd MMMM yyyy");
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning("[DialogosManager] Error saving partida info: " + ex.Message);
+            }
         }
 
         if (!(d1 && d2 && d3))
@@ -863,6 +879,8 @@ public class DialogosManager : MonoBehaviour
                 // Hide any button inside loading panel to prevent manual interference
                 Transform btnTrans = loadingPanel.transform.Find("Button");
                 if (btnTrans != null) btnTrans.gameObject.SetActive(false);
+                Transform btnTransAlt = loadingPanel.transform.Find("btnContinuar");
+                if (btnTransAlt != null) btnTransAlt.gameObject.SetActive(false);
             }
             return;
         }
