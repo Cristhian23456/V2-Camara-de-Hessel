@@ -57,6 +57,7 @@ public class ApiManager : MonoBehaviour
     public event Action<List<Dialogos>> DialogosCargadosDesarrolladoEvent;
     // Evento para indicar que los di??logos se han cargado
     public event Action<List<Dialogos>> DialogosCargadosFinalEvent;
+    public event Action<string> OnLoadError;
    
     private bool recursosCargados = false;
 
@@ -177,9 +178,11 @@ public class ApiManager : MonoBehaviour
             }
         }
         
-        // All retries failed - invoke callback with empty list to avoid hanging
-        Debug.LogError("[ApiManager] Failed to load dialogs for phase " + fase + " after " + maxRetries + " attempts. Proceeding with empty list.");
-        callback?.Invoke(new List<Dialogos>());
+        // All retries failed - do NOT set loaded flags silently; notify error
+        string errDialog = "Failed to load dialogs for phase " + fase + " after " + maxRetries + " attempts.";
+        Debug.LogError("[ApiManager] " + errDialog);
+        OnLoadError?.Invoke(errDialog);
+        // Do not invoke success callback on failure
     }
 
     IEnumerator GetPreguntaById(string preguntaId, Dialogos dialogo)
@@ -232,7 +235,9 @@ public class ApiManager : MonoBehaviour
             }
         }
         
-        Debug.LogError("[ApiManager] Failed to load question " + preguntaId + " after " + maxRetries + " attempts.");
+        string errQ = "Failed to load question " + preguntaId + " after " + maxRetries + " attempts.";
+        Debug.LogError("[ApiManager] " + errQ);
+        OnLoadError?.Invoke(errQ);
     }
     public int getNroCaso()
     {
