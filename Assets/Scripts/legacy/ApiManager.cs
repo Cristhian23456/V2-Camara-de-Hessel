@@ -51,11 +51,11 @@ public class ApiManager : MonoBehaviour
     }
     
 
-    // Evento para indicar que los diálogos se han cargado fase inicial
+    // Evento para indicar que los di??logos se han cargado fase inicial
     public event Action<List<Dialogos>> DialogosCargadosEvent;
-    // Evento para indicar que los diálogos se han cargado fase desarrollo
+    // Evento para indicar que los di??logos se han cargado fase desarrollo
     public event Action<List<Dialogos>> DialogosCargadosDesarrolladoEvent;
-    // Evento para indicar que los diálogos se han cargado
+    // Evento para indicar que los di??logos se han cargado
     public event Action<List<Dialogos>> DialogosCargadosFinalEvent;
    
     private bool recursosCargados = false;
@@ -64,7 +64,7 @@ public class ApiManager : MonoBehaviour
     {
         // Consumimos la api de manera diferida para acelerar la carga del juego
         nroCaso = new System.Random().Next(2) == 0 ? 1 : 4;
-        Debug.Log("Número de caso generado (Diferido): " + nroCaso);
+        Debug.Log("N??mero de caso generado (Diferido): " + nroCaso);
 
         if (nroCaso == 1)
         {
@@ -87,23 +87,23 @@ public class ApiManager : MonoBehaviour
         if (recursosCargados) return;
         recursosCargados = true;
         
-        Debug.Log("Cargando dinámicamente recursos de diálogos desde la API para el caso: " + nroCaso);
+        Debug.Log("Cargando din??micamente recursos de di??logos desde la API para el caso: " + nroCaso);
 
         StartCoroutine(GetDialogosFromApi(nroCaso, "Inicial", (dialogos) => {
             dialogosList = dialogos;
-            Debug.Log("Diálogos Inicial cargados: " + dialogosList.Count);
+            Debug.Log("Di??logos Inicial cargados: " + dialogosList.Count);
             DialogosCargadosEvent?.Invoke(dialogosList);
         }));
 
         StartCoroutine(GetDialogosFromApi(nroCaso, "Desarrollo", (dialogos) => {
             dialogosListDes = dialogos;
-            Debug.Log("Diálogos Desarrollo cargados: " + dialogosListDes.Count);
+            Debug.Log("Di??logos Desarrollo cargados: " + dialogosListDes.Count);
             DialogosCargadosDesarrolladoEvent?.Invoke(dialogosListDes);
         }));
 
         StartCoroutine(GetDialogosFromApi(nroCaso, "Final", (dialogos) => {
             dialogosListFin = dialogos;
-            Debug.Log("Diálogos final cargados: " + dialogosListFin.Count);
+            Debug.Log("Di??logos final cargados: " + dialogosListFin.Count);
             DialogosCargadosFinalEvent?.Invoke(dialogosListFin);
         }));
     }
@@ -111,67 +111,128 @@ public class ApiManager : MonoBehaviour
     IEnumerator GetDialogosFromApi(int caso, string fase, Action<List<Dialogos>> callback)
     {
         string url = apiUrl + "/get-dialogos?caso=" + caso + "&fase=" + fase;
-        Debug.Log(url);
-        using (UnityWebRequest request = UnityWebRequest.Get(url))
+        Debug.Log("[ApiManager] Loading dialogs from: " + url);
+        
+        int maxRetries = 3;
+        int retryCount = 0;
+        float timeoutSeconds = 10f;
+        
+        while (retryCount < maxRetries)
         {
-            yield return request.SendWebRequest();
-
-            if (request.result != UnityWebRequest.Result.Success)
+            using (UnityWebRequest request = UnityWebRequest.Get(url))
             {
-                Debug.LogError("Error al obtener los dialogos: " + request.error);
-            }
-            else
-            {
-                string jsonData = request.downloadHandler.text;
-               // Debug.Log("Dialogos obtenidos correctamente para fase " + fase + ": " + jsonData);
+                request.timeout = (int)timeoutSeconds;
+                yield return request.SendWebRequest();
 
-                // Deserializar el JSON en la clase contenedora
-                DialogosContainer dialogosContainer = JsonUtility.FromJson<DialogosContainer>("{\"dialogos\":" + jsonData + "}");
-
-                // Acceder a la lista de dialogos
-                List<Dialogos> listDialogos = dialogosContainer.dialogos;
-
-                // Procesar preguntas si existen
-                foreach (Dialogos dialogo in listDialogos)
+                if (request.result == UnityWebRequest.Result.Success)
                 {
-                    if (dialogo.tienePregunta)
+                    string jsonData = request.downloadHandler.text;
+                    Debug.Log("[ApiManager] Dialogs loaded successfully for phase " + fase + " (case " + caso + ")");
+
+                    try
                     {
-                        yield return StartCoroutine(GetPreguntaById(dialogo.preguntaId, dialogo));
+                        // Deserializar el JSON en la clase contenedora
+                        DialogosContainer dialogosContainer = JsonUtility.FromJson<DialogosContainer>("{\"dialogos\":" + jsonData + "}");
+                        if (dialogosContainer == null || dialogosContainer.dialogos == null)
+                        {
+                            Debug.LogError("[ApiManager] Failed to parse dialogs JSON for phase " + fase);
+                            retryCount++;
+                            yield return new WaitForSeconds(1f * retryCount);
+                            continue;
+                        }
+
+                        // Acceder a la lista de dialogos
+                        List<Dialogos> listDialogos = dialogosContainer.dialogos;
+
+                        // Procesar preguntas si existen
+                        foreach (Dialogos dialogo in listDialogos)
+                        {
+                            if (dialogo != null && dialogo.tienePregunta && !string.IsNullOrEmpty(dialogo.preguntaId))
+                            {
+                                yield return StartCoroutine(GetPreguntaById(dialogo.preguntaId, dialogo));
+                            }
+                        }
+
+                        // Callback para asignar la lista
+                        callback?.Invoke(listDialogos);
+                        yield break;
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogError("[ApiManager] Exception parsing dialogs for phase " + fase + ": " + ex.Message);
+                        retryCount++;
+                        yield return new WaitForSeconds(1f * retryCount);
+                        continue;
                     }
                 }
-
-                // Callback para asignar la lista
-                callback?.Invoke(listDialogos);
+                else
+                {
+                    Debug.LogError("[ApiManager] Error loading dialogs for phase " + fase + " (attempt " + (retryCount + 1) + "/" + maxRetries + "): " + request.error);
+                    retryCount++;
+                    if (retryCount < maxRetries)
+                    {
+                        yield return new WaitForSeconds(1f * retryCount);
+                    }
+                }
             }
         }
+        
+        // All retries failed - invoke callback with empty list to avoid hanging
+        Debug.LogError("[ApiManager] Failed to load dialogs for phase " + fase + " after " + maxRetries + " attempts. Proceeding with empty list.");
+        callback?.Invoke(new List<Dialogos>());
     }
 
     IEnumerator GetPreguntaById(string preguntaId, Dialogos dialogo)
     {
         string url = apiUrl + "/get-questionsId/" + preguntaId;
-        using (UnityWebRequest request = UnityWebRequest.Get(url))
+        Debug.Log("[ApiManager] Loading question: " + preguntaId);
+        
+        int maxRetries = 2;
+        int retryCount = 0;
+        float timeoutSeconds = 8f;
+        
+        while (retryCount < maxRetries)
         {
-            yield return request.SendWebRequest();
-
-            if (request.result != UnityWebRequest.Result.Success)
+            using (UnityWebRequest request = UnityWebRequest.Get(url))
             {
-                Debug.LogError("Error al obtener la pregunta con ID " + preguntaId + ": " + request.error);
-            }
-            else
-            {
-                string preguntaData = request.downloadHandler.text;
-                
-                Debug.Log("Pregunta obtenida correctamente.");
+                request.timeout = (int)timeoutSeconds;
+                yield return request.SendWebRequest();
 
-                // Deserializamos el JSON en un objeto Preguntas
-                Preguntas pregunta = JsonUtility.FromJson<Preguntas>(preguntaData);
-                
-                // Los audios ya NO se cargan aquí al inicio de golpe.
-                // Esto optimiza la carga inicial cargando los recursos "por partes" (bajo demanda) en DialogosManager.cs.
+                if (request.result == UnityWebRequest.Result.Success)
+                {
+                    string preguntaData = request.downloadHandler.text;
+                    Debug.Log("[ApiManager] Question loaded successfully: " + preguntaId);
 
-                dialogo.pregunta = pregunta;
+                    try
+                    {
+                        Preguntas pregunta = JsonUtility.FromJson<Preguntas>(preguntaData);
+                        if (pregunta != null && dialogo != null)
+                        {
+                            dialogo.pregunta = pregunta;
+                        }
+                        yield break;
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogError("[ApiManager] Exception parsing question " + preguntaId + ": " + ex.Message);
+                        retryCount++;
+                        yield return new WaitForSeconds(0.5f * retryCount);
+                        continue;
+                    }
+                }
+                else
+                {
+                    Debug.LogError("[ApiManager] Error loading question " + preguntaId + " (attempt " + (retryCount + 1) + "/" + maxRetries + "): " + request.error);
+                    retryCount++;
+                    if (retryCount < maxRetries)
+                    {
+                        yield return new WaitForSeconds(0.5f * retryCount);
+                    }
+                }
             }
         }
+        
+        Debug.LogError("[ApiManager] Failed to load question " + preguntaId + " after " + maxRetries + " attempts.");
     }
     public int getNroCaso()
     {
