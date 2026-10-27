@@ -23,7 +23,24 @@ public class SceneTransitionManager : MonoBehaviour
 
     public void LoadSceneAsync(string sceneName, Action onComplete = null)
     {
-        GameEvents.SceneTransitionStart(sceneName);
+        Debug.Log("[SceneTransitionManager] Loading scene asynchronously: " + sceneName);
+        try
+        {
+            // GameEvents may not exist in all builds; call defensively if present
+            var geType = System.Type.GetType("GameEvents");
+            if (geType != null)
+            {
+                var method = geType.GetMethod("SceneTransitionStart", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
+                if (method != null)
+                {
+                    method.Invoke(null, new object[] { sceneName });
+                }
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning("[SceneTransitionManager] GameEvents.SceneTransitionStart failed: " + ex.Message);
+        }
         StartCoroutine(AsyncLoadRoutine(sceneName, onComplete));
     }
 
@@ -32,23 +49,67 @@ public class SceneTransitionManager : MonoBehaviour
         yield return FadeIn();
 
         AsyncOperation operation = SceneManager.LoadSceneAsync(sceneName);
+        if (operation == null)
+        {
+            Debug.LogError("[SceneTransitionManager] Failed to start async load for scene: " + sceneName);
+            yield return FadeOut();
+            yield break;
+        }
         operation.allowSceneActivation = false;
-        progressBar.gameObject.SetActive(true);
+        if (progressBar != null)
+        {
+            progressBar.gameObject.SetActive(true);
+            progressBar.value = 0f;
+        }
 
+        float timeout = 30f;
+        float elapsed = 0f;
         while (operation.progress < 0.9f)
         {
-            progressBar.value = operation.progress * 100f;
+            elapsed += Time.unscaledDeltaTime;
+            if (progressBar != null)
+            {
+                progressBar.value = operation.progress * 100f;
+            }
+            if (elapsed > timeout)
+            {
+                Debug.LogError("[SceneTransitionManager] Timeout loading scene: " + sceneName);
+                break;
+            }
             yield return null;
         }
 
-        progressBar.value = 100f;
-        yield return new WaitForSeconds(0.2f);
+        if (progressBar != null)
+        {
+            progressBar.value = 100f;
+        }
+        yield return new WaitForSecondsRealtime(0.2f);
 
         operation.allowSceneActivation = true;
-        yield return new WaitUntil(() => operation.isDone);
+        elapsed = 0f;
+        while (!operation.isDone)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            if (elapsed > timeout)
+            {
+                Debug.LogError("[SceneTransitionManager] Timeout waiting for scene activation: " + sceneName);
+                break;
+            }
+            yield return null;
+        }
 
-        progressBar.gameObject.SetActive(false);
-        onComplete?.Invoke();
+        if (progressBar != null)
+        {
+            progressBar.gameObject.SetActive(false);
+        }
+        try
+        {
+            onComplete?.Invoke();
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError("[SceneTransitionManager] onComplete callback error: " + ex.Message);
+        }
         yield return FadeOut();
     }
 
