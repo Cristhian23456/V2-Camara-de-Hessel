@@ -97,3 +97,32 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+# =============================================================================
+#  Añadido en limpieza de assets (Cámara de Gesell · noviembre 2026)
+# =============================================================================
+
+# IDEs: Rider/JetBrains (también la carpeta .idea que quedó dentro de Assets/Scripts)
+.idea/
+**/.idea/
+# Visual Studio: nuevo formato de solución .slnx (no lo cubre "*.sln")
+*.slnx
+.vscode/
+
+# Escenas de autorrecuperación que Unity crea tras un crash
+/[Aa]ssets/_Recovery/
+/[Aa]ssets/_Recovery.meta
+
+# Reportes, backups y bitácoras locales de la herramienta de limpieza
+/Reportes_Limpieza/
+
+# Scripts sueltos de pruebas fuera del proyecto Unity
+/scratch/
+
+# Archivos basura del sistema operativo y de merges
+.DS_Store
+Thumbs.db
+desktop.ini
+*.orig
+*.bak
+STUDY_NOTES_*.md

@@ -116,6 +116,14 @@ public class DialogosManager : MonoBehaviour
     private bool startDeferred = false;
     private string deferredPhase = "";
 
+    [Header("Pantalla de carga / error de API")]
+    [Tooltip("Panel 'panelLoading' de la escena. Si se deja vacío se busca por nombre al iniciar (antes de ocultarlo).")]
+    [SerializeField] private GameObject panelLoading;
+    private TextMeshProUGUI txtLoading;
+    private string textoLoadingOriginal = "Cargando .....";
+    private Button btnReintentar;
+    private string errorCargaPendiente;
+
     [Header("Configuración de Casos Unificada")]
     [SerializeField]
     private List<CasoConfig> casoConfigs = new List<CasoConfig>();
@@ -142,12 +150,15 @@ public class DialogosManager : MonoBehaviour
             }
         }
 
+        // Se cachea la referencia ANTES de ocultarlo: GameObject.Find no encuentra objetos inactivos,
+        // por eso antes la pantalla de carga nunca volvía a mostrarse.
+        CachearPanelLoading();
+
         if (!isHistoryGame)
         {
-            GameObject loadingPanel = GameObject.Find("panelLoading");
-            if (loadingPanel != null)
+            if (panelLoading != null)
             {
-                loadingPanel.SetActive(false);
+                panelLoading.SetActive(false);
             }
         }
 
@@ -156,6 +167,7 @@ public class DialogosManager : MonoBehaviour
             apiManager.DialogosCargadosEvent += OnDialogosInicialCargados;
             apiManager.DialogosCargadosDesarrolladoEvent += OnDialogosDesarrolloCargados;
             apiManager.DialogosCargadosFinalEvent += OnDialogosFinCargados;
+            apiManager.DialogosErrorEvent += OnDialogosError;
         }
         if (dialagoPaciente != null) dialagoPaciente.SetActive(false);
         if (dialagoPsicologo != null) dialagoPsicologo.SetActive(false);
@@ -249,6 +261,105 @@ public class DialogosManager : MonoBehaviour
         }
     }
 
+    // =====================================================================
+    //  Pantalla de carga / error de la API
+    // =====================================================================
+    private void CachearPanelLoading()
+    {
+        if (panelLoading == null) panelLoading = GameObject.Find("panelLoading");
+        if (panelLoading == null)
+        {
+            // Respaldo: buscar también entre objetos inactivos de la escena.
+            foreach (var rt in FindObjectsByType<RectTransform>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                if (rt.name == "panelLoading" && rt.gameObject.scene.IsValid()) { panelLoading = rt.gameObject; break; }
+            }
+        }
+        if (panelLoading == null)
+        {
+            Debug.LogWarning("[DialogosManager] No se encontró 'panelLoading'. Asígnalo en el Inspector para mostrar carga/errores.");
+            return;
+        }
+
+        Transform t = panelLoading.transform.Find("Text (TMP)");
+        txtLoading = t != null ? t.GetComponent<TextMeshProUGUI>() : panelLoading.GetComponentInChildren<TextMeshProUGUI>(true);
+        if (txtLoading != null) textoLoadingOriginal = txtLoading.text;
+    }
+
+    private void MostrarPanelLoadingOError()
+    {
+        if (panelLoading == null) CachearPanelLoading();
+        if (panelLoading == null) return;
+
+        panelLoading.SetActive(true);
+        // El botón original tiene eventos persistentes (ManagerData.continuarFase): se mantiene oculto.
+        Transform btnOriginal = panelLoading.transform.Find("Button");
+        if (btnOriginal != null) btnOriginal.gameObject.SetActive(false);
+
+        if (!string.IsNullOrEmpty(errorCargaPendiente))
+        {
+            if (txtLoading != null) txtLoading.text = errorCargaPendiente;
+            Button retry = ObtenerBotonReintentar();
+            if (retry != null) retry.gameObject.SetActive(true);
+        }
+        else
+        {
+            if (txtLoading != null) txtLoading.text = textoLoadingOriginal;
+            if (btnReintentar != null) btnReintentar.gameObject.SetActive(false);
+        }
+    }
+
+    private void OcultarPanelLoading()
+    {
+        if (btnReintentar != null) btnReintentar.gameObject.SetActive(false);
+        if (txtLoading != null) txtLoading.text = textoLoadingOriginal;
+        if (panelLoading != null) panelLoading.SetActive(false);
+    }
+
+    private void OnDialogosError(string faseFallida, string mensaje)
+    {
+        // Las 3 fases pueden fallar a la vez: basta con un mensaje.
+        if (!string.IsNullOrEmpty(errorCargaPendiente)) return;
+        errorCargaPendiente = mensaje;
+        Debug.LogWarning($"[DialogosManager] La fase '{faseFallida}' no está disponible: {mensaje}");
+
+        // Si el estudiante ya está esperando (pantalla de carga visible), se muestra el error de inmediato;
+        // si todavía está recorriendo el laboratorio, se mostrará al intentar iniciar la sesión.
+        if (startDeferred) MostrarPanelLoadingOError();
+    }
+
+    private Button ObtenerBotonReintentar()
+    {
+        if (btnReintentar != null) return btnReintentar;
+        if (panelLoading == null) return null;
+
+        Transform plantilla = panelLoading.transform.Find("Button");
+        if (plantilla == null)
+        {
+            Debug.LogWarning("[DialogosManager] 'panelLoading' no tiene un hijo 'Button' para clonar el botón Reintentar.");
+            return null;
+        }
+
+        GameObject clon = Instantiate(plantilla.gameObject, plantilla.parent);
+        clon.name = "BtnReintentarCarga";
+        btnReintentar = clon.GetComponent<Button>();
+        if (btnReintentar == null) return null;
+
+        // Un evento nuevo elimina también las llamadas persistentes copiadas del original.
+        btnReintentar.onClick = new Button.ButtonClickedEvent();
+        btnReintentar.onClick.AddListener(ReintentarCargaDialogos);
+        var lbl = clon.GetComponentInChildren<TextMeshProUGUI>(true);
+        if (lbl != null) lbl.text = "Reintentar";
+        return btnReintentar;
+    }
+
+    public void ReintentarCargaDialogos()
+    {
+        errorCargaPendiente = null;
+        MostrarPanelLoadingOError(); // vuelve a "Cargando ....." y oculta el botón
+        if (apiManager != null) apiManager.ReintentarCarga();
+    }
+
     public void activaPersonajes()
     {
         int caso = apiManager.getNroCaso();
@@ -331,13 +442,13 @@ public class DialogosManager : MonoBehaviour
             apiManager.DialogosCargadosEvent -= OnDialogosInicialCargados;
             apiManager.DialogosCargadosDesarrolladoEvent -= OnDialogosDesarrolloCargados;
             apiManager.DialogosCargadosFinalEvent -= OnDialogosFinCargados;
+            apiManager.DialogosErrorEvent -= OnDialogosError;
         }
     }
 
     private void OnDialogosInicialCargados(List<Dialogos> dialogos)
     {
         dialogosList = dialogos;
-        calificacion.preguntasCant = calcularCantidadP();
         d1 = true;
         CheckAllDialogosLoaded();
     }
@@ -360,15 +471,16 @@ public class DialogosManager : MonoBehaviour
     {
         if (d1 && d2 && d3)
         {
+            errorCargaPendiente = null;
+            // Antes se calculaba al llegar solo la fase Inicial (las 3 cargan en paralelo),
+            // contando 0 preguntas de Desarrollo/Final → porcentaje de avance incorrecto.
+            if (calificacion != null) calificacion.preguntasCant = Mathf.Max(1, calcularCantidadP());
+
             if (btnContinuarDesarrollo != null) btnContinuarDesarrollo.SetActive(false); // Hide the continue button to satisfy user request 2
             activaPersonajes();
 
             // Hide loading panel if it was showing
-            GameObject loadingPanel = GameObject.Find("panelLoading");
-            if (loadingPanel != null)
-            {
-                loadingPanel.SetActive(false);
-            }
+            OcultarPanelLoading();
 
             // If a start was deferred because resources weren't ready, execute it now!
             if (startDeferred)
@@ -391,14 +503,7 @@ public class DialogosManager : MonoBehaviour
             // Resources are not loaded yet! Defer the phase initialization.
             deferredPhase = fase;
             startDeferred = true;
-            GameObject loadingPanel = GameObject.Find("panelLoading");
-            if (loadingPanel != null)
-            {
-                loadingPanel.SetActive(true);
-                // Hide any button inside loading panel to prevent manual interference
-                Transform btnTrans = loadingPanel.transform.Find("Button");
-                if (btnTrans != null) btnTrans.gameObject.SetActive(false);
-            }
+            MostrarPanelLoadingOError();
             return;
         }
 
@@ -856,22 +961,21 @@ public class DialogosManager : MonoBehaviour
         {
             // Resources are not loaded yet! Show loading screen and defer start.
             startDeferred = true;
-            GameObject loadingPanel = GameObject.Find("panelLoading");
-            if (loadingPanel != null)
-            {
-                loadingPanel.SetActive(true);
-                // Hide any button inside loading panel to prevent manual interference
-                Transform btnTrans = loadingPanel.transform.Find("Button");
-                if (btnTrans != null) btnTrans.gameObject.SetActive(false);
-            }
+            MostrarPanelLoadingOError();
             return;
         }
 
-        if (dialogosList.Count != 0)
+        if (dialogosList == null || contador < 0 || contador >= dialogosList.Count)
         {
-            buscarPersonaje(dialogosList[contador].personaje);
+            // Antes: IndexOutOfRangeException si la API devolvía una lista vacía.
+            Debug.LogError($"[DialogosManager] No hay diálogo en la posición {contador} para la fase '{fase}' (total: {dialogosList?.Count ?? 0}).");
+            errorCargaPendiente = "No hay diálogos disponibles para continuar esta fase.";
+            startDeferred = true;
+            MostrarPanelLoadingOError();
+            return;
         }
 
+        buscarPersonaje(dialogosList[contador].personaje);
         txtPersonaje.text = dialogosList[contador].personaje;
         llamarUiDialogos();
         manejadorCamara.cambiarPosiciones(parado);

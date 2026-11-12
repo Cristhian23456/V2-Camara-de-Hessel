@@ -33,7 +33,7 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: MAT_vidrio
-    second: {fileID: 2100000, guid: 3bec4ae06ebdc324da68d82b3dfe8c99, type: 2}
+    second: {fileID: 2100000, guid: 0ae6badc900ee55458243d161ee3e054, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
