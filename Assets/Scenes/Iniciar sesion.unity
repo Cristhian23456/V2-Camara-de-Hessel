@@ -10681,6 +10681,8 @@ MonoBehaviour:
   Panel_Opcion_Escena: {fileID: 8834073811033919957}
   Panel_Espera: {fileID: 4035931753204663640}
   Panel_Datos_Incorrectos: {fileID: 3079448394670443175}
+  txtMensajeError: {fileID: 0}
+  txtMensajeErrorLegacy: {fileID: 6489902712598134367}
   webService: {fileID: 1859893451}
   Slider: {fileID: 0}
 --- !u!4 &1583704498

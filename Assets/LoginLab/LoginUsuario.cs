@@ -21,6 +21,8 @@ public class LoginUsuario : MonoBehaviour
     public GameObject Panel_Datos_Incorrectos;
     [Tooltip("Texto opcional dentro de Panel_Datos_Incorrectos para mostrar el motivo del error.")]
     public TextMeshProUGUI txtMensajeError;
+    [Tooltip("Alternativa para paneles con texto UI legacy (UnityEngine.UI.Text). Si se asigna, muestra el motivo del error.")]
+    public Text txtMensajeErrorLegacy;
     public WebService webService;
     private String UriUtpl = "https://campus3d.utpl.edu.ec/virtopsia-admin/api/authentication";
 
@@ -140,6 +142,8 @@ public class LoginUsuario : MonoBehaviour
     private void MostrarMensaje(string mensaje)
     {
         if (txtMensajeError != null) txtMensajeError.text = mensaje;
+        // El panel actual usa UI.Text: si no hay mensaje se deja su texto original
+        if (txtMensajeErrorLegacy != null && !string.IsNullOrEmpty(mensaje)) txtMensajeErrorLegacy.text = mensaje;
         if (outputText != null) outputText.text = mensaje;
         if (!string.IsNullOrEmpty(mensaje)) Debug.Log("[Login] " + mensaje);
     }
