@@ -31,6 +31,34 @@ public class VistaFicha : MonoBehaviour
         "el paciente durante la entrevista no mencionó algún síntoma relacionado con su concentración.",
         "el paciente durante la entrevista no mencionó algún síntoma relacionado con intentos suicidas."
     };
+    // Caso 4: criterios esperados 1,1,1,1,0,1,1,1,1 (8 presentes, sin alteración psicomotora).
+    // BORRADOR: validar la redacción con el guion clínico del Caso 4 (Psicología).
+    public string[] FichaC4 =
+    {
+        "la paciente durante la entrevista manifestó sentirse triste y desanimada la mayor parte del día.",
+        "la paciente mencionó que ha perdido el interés y el disfrute en las actividades que antes realizaba.",
+        "la paciente durante la entrevista mencionó cambios en su apetito y en su peso.",
+        "la paciente durante la entrevista mencionó problemas para dormir.",
+        "la paciente durante la entrevista no mencionó algún síntoma relacionado con problemas psicomotores.",
+        "la paciente manifestó sentirse cansada y sin energía casi todos los días.",
+        "la paciente expresó sentimientos de culpa y de inutilidad.",
+        "la paciente mencionó dificultades para concentrarse y tomar decisiones.",
+        "la paciente expresó pensamientos recurrentes de muerte."
+    };
+
+    // Nombre de cada criterio DSM-5-TR (A1..A9), para generar el texto si un caso no tiene ficha propia.
+    private static readonly string[] CriteriosDSM =
+    {
+        "estado de ánimo deprimido",
+        "pérdida de interés o placer",
+        "cambios de peso o apetito",
+        "problemas de sueño",
+        "problemas psicomotores",
+        "fatiga o pérdida de energía",
+        "sentimientos de culpabilidad o inutilidad",
+        "problemas de concentración",
+        "pensamientos de muerte o intentos suicidas"
+    };
     public List<PreguntasResFinal> preguntasList = new List<PreguntasResFinal>();
     [SerializeField]
     private GameObject uiRes;
@@ -51,8 +79,28 @@ public class VistaFicha : MonoBehaviour
     {
         
     }
-    public void presentarLista(bool[] array, bool[] arrayRespuestas)
+    /// <summary>Textos de retroalimentación de la ficha DSM según el caso.</summary>
+    public string[] ObtenerTextosFicha(int nroCaso, bool[] respuestasCorrectas)
     {
+        string[] textos = nroCaso == 1 ? FichaC1 : nroCaso == 4 ? FichaC4 : null;
+        if (textos != null && textos.Length >= respuestasCorrectas.Length) return textos;
+
+        // Caso sin ficha propia: texto genérico a partir de las respuestas correctas
+        Debug.LogWarning($"[VistaFicha] No hay textos de ficha para el caso {nroCaso}; se usa texto genérico.");
+        string[] generados = new string[respuestasCorrectas.Length];
+        for (int i = 0; i < respuestasCorrectas.Length; i++)
+        {
+            string criterio = i < CriteriosDSM.Length ? CriteriosDSM[i] : $"el criterio {i + 1}";
+            generados[i] = respuestasCorrectas[i]
+                ? $"durante la entrevista se manifestaron síntomas de {criterio}."
+                : $"durante la entrevista no se mencionó algún síntoma de {criterio}.";
+        }
+        return generados;
+    }
+
+    public void presentarLista(bool[] array, bool[] arrayRespuestas, int nroCaso)
+    {
+        string[] textosFicha = ObtenerTextosFicha(nroCaso, array);
         uiResFicha.SetActive(true);
         for (int i = 0; i < array.Length; i++)
         {
@@ -86,7 +134,7 @@ public class VistaFicha : MonoBehaviour
             text1.color = colorTxt;
 
             var text2 = vista.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
-            text2.text = esCorrecto + FichaC1[i];
+            text2.text = esCorrecto + textosFicha[i];
             text2.color = colorTxt;
 
             vista.gameObject.GetComponent<RawImage>().color = colorBg;

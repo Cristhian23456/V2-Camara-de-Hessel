@@ -420,19 +420,31 @@ public class DialogosManager : MonoBehaviour
             }
         }
 
-        ConfigureLipSync(gameObjectPiscolog);
-        ConfigureLipSync(gameObjectPaciente);
+        lipPsicologo = ConfigureLipSync(gameObjectPiscolog);
+        lipPaciente = ConfigureLipSync(gameObjectPaciente);
+        SetHablante(null);
     }
 
-    private void ConfigureLipSync(GameObject target)
+    private AvatarLipSync lipPsicologo, lipPaciente;
+
+    private AvatarLipSync ConfigureLipSync(GameObject target)
     {
-        if (target != null)
-        {
-            var lip = target.GetComponent<AvatarLipSync>();
-            if (lip == null) lip = target.AddComponent<AvatarLipSync>();
-            lip.SetAudioSource(audioSource);
-            lip.SetSensitivity(2.5f);
-        }
+        if (target == null) return null;
+        var lip = target.GetComponent<AvatarLipSync>();
+        if (lip == null) lip = target.AddComponent<AvatarLipSync>();
+        lip.SetAudioSource(audioSource);
+        lip.SetSensitivity(2.5f);
+        return lip;
+    }
+
+    /// <summary>
+    /// Indica qué avatar está hablando. Solo ese mueve la boca con el audio.
+    /// null = narración (preguntas, retroalimentación, alertas): ningún avatar mueve la boca.
+    /// </summary>
+    private void SetHablante(AvatarLipSync hablante)
+    {
+        if (lipPsicologo != null) lipPsicologo.SetSpeaking(lipPsicologo == hablante);
+        if (lipPaciente != null) lipPaciente.SetSpeaking(lipPaciente == hablante);
     }
 
     private void OnDestroy()
@@ -706,6 +718,7 @@ public class DialogosManager : MonoBehaviour
 
     private void TriggerAttentionPoint()
     {
+        SetHablante(null);
         audioSource.clip = audioAtencion;
         audioSource.Play();
         dialagoPaciente.SetActive(false);
@@ -835,6 +848,7 @@ public class DialogosManager : MonoBehaviour
             string audioResourcePath = pregunta.srcAudio.Replace(".wav", "").Replace(".mp3", "");
             pregunta.audio = Resources.Load<AudioClip>(audioResourcePath);
         }
+        SetHablante(null);
         audioSource.clip = pregunta.audio;
         audioSource.Play();
         StopAllCoroutines();
@@ -902,6 +916,7 @@ public class DialogosManager : MonoBehaviour
                 string respuestasAudioPath = respuestasobj.srcAudio.Replace(".wav", "").Replace(".mp3", "");
                 respuestasobj.audio = Resources.Load<AudioClip>(respuestasAudioPath);
             }
+            SetHablante(null);
             audioSource.clip = respuestasobj.audio;
             audioSource.Play();
 
@@ -1156,6 +1171,8 @@ public class DialogosManager : MonoBehaviour
         string texto = dialogosList[contador].contenido;
         if (dialogosList[contador].personaje.Contains("Psicólogo") || dialogosList[contador].personaje.Contains("Terapeuta"))
         {
+            SetHablante(lipPsicologo);
+            if (animPaciente != null) animPaciente.SetBool("hablar", false);
             if (!parado)
             {
                 if (animDoctor != null) animDoctor.SetBool("hablar", true);
@@ -1166,6 +1183,8 @@ public class DialogosManager : MonoBehaviour
         }
         else
         {
+            SetHablante(lipPaciente);
+            if (animDoctor != null) animDoctor.SetBool("hablar", false);
             if (!parado)
             {
                 if (animPaciente != null) animPaciente.SetBool("hablar", true);
