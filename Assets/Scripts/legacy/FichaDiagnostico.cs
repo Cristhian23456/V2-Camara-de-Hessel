@@ -160,7 +160,7 @@ public class FichaDiagnostico : MonoBehaviour
                             estado = false;
                             
                             // Mostrar la retroalimentación
-                            vistaFicha.presentarLista(config.respuestasCorrectasDSM, listaRespuestaObtenidas);
+                            vistaFicha.presentarLista(config.respuestasCorrectasDSM, listaRespuestaObtenidas, apiManager.getNroCaso());
                         }
                     }
                 }
@@ -185,7 +185,7 @@ public class FichaDiagnostico : MonoBehaviour
                             calificacion.incrementarContador();
                             estado = false;
                             
-                            vistaFicha.presentarLista(nroCaso == 1 ? listRespuestaC1 : listRespuestaC4, listaRespuestaObtenidas);
+                            vistaFicha.presentarLista(nroCaso == 1 ? listRespuestaC1 : listRespuestaC4, listaRespuestaObtenidas, nroCaso);
                         }
                     }
                 }
