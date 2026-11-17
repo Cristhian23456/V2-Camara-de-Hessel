@@ -94,6 +94,11 @@ public class DialogosManager : MonoBehaviour
     private FinalizarCaso finalizarCaso;
     [SerializeField]
     private AnimationClip animationEntregar;
+    [Header("Consentimiento informado")]
+    [Tooltip("Si está activo, después de la animación de firma el estudiante debe firmar el consentimiento para continuar.")]
+    [SerializeField]
+    private bool requerirFirmaEstudiante = true;
+    private bool pendienteFirmaConsentimiento;
     [Header("Panel Indicaciones")]
     [SerializeField]
     private GameObject panelIndiAniamciones;
@@ -756,6 +761,8 @@ public class DialogosManager : MonoBehaviour
             "(El paciente simula leerlo y luego procede a firmar el consentimiento informado dado por el terapeuta. Posterior a ello se continua con la entrevista).";
         if (animDoctor != null) animDoctor.SetBool("entregar", true);
         StopAllCoroutines();
+        // Al terminar la animación, esperarAnimacion abre el documento para que firme el estudiante
+        pendienteFirmaConsentimiento = requerirFirmaEstudiante;
         StartCoroutine(ejecutarAnimacionFirmar());
         StartCoroutine(esperarAnimacion(panelIndiAniamciones, false, "Inicial", listUbicacionesCamera[1]));
     }
@@ -1107,6 +1114,17 @@ public class DialogosManager : MonoBehaviour
         yield return new WaitForSeconds(6.0f);
 
         panel.SetActive(false);
+
+        // Consentimiento informado: la entrevista continúa solo cuando el estudiante firma
+        if (pendienteFirmaConsentimiento)
+        {
+            pendienteFirmaConsentimiento = false;
+            bool firmado = false;
+            string estudiante = DataUsers.Instance != null ? DataUsers.Instance.nombre : "";
+            int caso = apiManager != null ? apiManager.getNroCaso() : 0;
+            ConsentimientoFirma.Instancia.Mostrar(estudiante, caso, () => firmado = true);
+            yield return new WaitUntil(() => firmado);
+        }
         if (!faseInicial)
         {
             contador++;
