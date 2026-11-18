@@ -126,3 +126,7 @@ desktop.ini
 *.orig
 *.bak
 STUDY_NOTES_*.md
+
+# Documentación personal (solo local)
+/Claude outputs/
+/CHANGELOG_*.md
