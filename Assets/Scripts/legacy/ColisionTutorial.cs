@@ -1,79 +1,47 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
+/// <summary>
+/// Pilar verde del tutorial: al tocarlo (desde cualquier lado) lleva al jugador al vestíbulo del
+/// laboratorio. Se dispara una sola vez aunque el trigger reciba varios contactos.
+/// </summary>
 public class ColisionTutorial : MonoBehaviour
 {
-    [SerializeField]
-    private GameObject controleClick;
-    [SerializeField]
-    private GameObject panelAviso;
-    [SerializeField]
-    private PlayerController playerController;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    [SerializeField] private GameObject controleClick;
+    [SerializeField] private GameObject panelAviso;
+    [SerializeField] private PlayerController playerController;
+    [SerializeField, Min(0f)] private float duracionMensaje = 1.8f;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    private bool usado;
+
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == "Player")
-        {
-            // Programmatically hide the Aceptar button inside the popup to avoid manual clicks
-            UnityEngine.UI.Button[] buttons = controleClick.GetComponentsInChildren<UnityEngine.UI.Button>(true);
-            foreach (var btn in buttons)
-            {
-                btn.gameObject.SetActive(false);
-            }
+        if (usado || !other.CompareTag("Player")) return;
+        usado = true;
 
-            controleClick.SetActive(true);
-            panelAviso.SetActive(false);
-
-            // Teleport the player immediately to enter the game
-            MovimientoInteractivo mov = null;
-            #if UNITY_6000_0_OR_NEWER || UNITY_2023_1_OR_NEWER
-            mov = FindAnyObjectByType<MovimientoInteractivo>();
-            #else
-            mov = FindObjectOfType<MovimientoInteractivo>();
-            #endif
-
-            if (mov != null)
-            {
-                mov.teletransprote();
-            }
-
-            if (playerController == null)
-            {
-                #if UNITY_6000_0_OR_NEWER || UNITY_2023_1_OR_NEWER
-                playerController = FindAnyObjectByType<PlayerController>();
-                #else
-                playerController = FindObjectOfType<PlayerController>();
-                #endif
-            }
-
-            if (playerController != null)
-            {
-                playerController.StartCoroutine(AutoDismissTutorialMessage());
-            }
-            else
-            {
-                StartCoroutine(AutoDismissTutorialMessage());
-            }
-        }
-    }
-
-    private IEnumerator AutoDismissTutorialMessage()
-    {
-        yield return new WaitForSeconds(1.8f);
         if (controleClick != null)
         {
-            controleClick.SetActive(false);
+            // El mensaje se cierra solo: se ocultan sus botones para no exigir clics.
+            foreach (var btn in controleClick.GetComponentsInChildren<Button>(true))
+                btn.gameObject.SetActive(false);
+            controleClick.SetActive(true);
         }
+        if (panelAviso != null) panelAviso.SetActive(false);
+
+        var mov = FindAnyObjectByType<MovimientoInteractivo>();
+        if (mov != null) mov.teletransprote();
+
+        if (playerController == null) playerController = other.GetComponent<PlayerController>();
+
+        // La corrutina corre en el jugador porque teletransprote() desactiva este pilar.
+        MonoBehaviour anfitrion = playerController != null ? (MonoBehaviour)playerController : this;
+        anfitrion.StartCoroutine(OcultarMensaje(controleClick, duracionMensaje));
+    }
+
+    private static IEnumerator OcultarMensaje(GameObject mensaje, float segundos)
+    {
+        yield return new WaitForSeconds(segundos);
+        if (mensaje != null) mensaje.SetActive(false);
     }
 }

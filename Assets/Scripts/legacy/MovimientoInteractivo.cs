@@ -1,49 +1,37 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel.Design;
 using UnityEngine;
 
 public class MovimientoInteractivo : MonoBehaviour
 {
-    [SerializeField]
-    private Transform punto;
-    [SerializeField]
-    private Transform personajeTransform;
-    [SerializeField]
-    private GameObject grupo;
-    [SerializeField]
-    private GameObject mensajes;
-    [SerializeField]
-    private PlayerController playerController;
+    [SerializeField] private Transform punto;
+    [SerializeField] private Transform personajeTransform;
+    [SerializeField] private GameObject grupo;
+    [SerializeField] private GameObject mensajes;
+    [SerializeField] private PlayerController playerController;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        // Do not disable PlayerController here as it blocks keyboard movement when intro screens are bypassed.
-        // The player is already kept inactive during the cinematic via GameObject.SetActive.
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
+    /// <summary>Lleva al jugador desde el pasillo del tutorial al vestíbulo del laboratorio.</summary>
     public void teletransprote()
     {
-        grupo.SetActive(false);
+        if (grupo != null) grupo.SetActive(false);
         Time.timeScale = 1;
-        mensajes.SetActive(false);
-        personajeTransform.position = punto.position;
-        playerController.enabled = true;
+        if (mensajes != null) mensajes.SetActive(false);
+
+        if (playerController == null && personajeTransform != null)
+            playerController = personajeTransform.GetComponent<PlayerController>();
+
+        // El CharacterController sobrescribe transform.position: se usa Teleport().
+        if (playerController != null) playerController.Teleport(punto.position, punto.rotation);
+        else if (personajeTransform != null) personajeTransform.position = punto.position;
+
+        if (playerController != null) playerController.enabled = true;
     }
 
     public void desactivarScript()
     {
-        playerController.enabled = false;
+        if (playerController != null) playerController.enabled = false;
     }
+
     public void activarScript()
     {
-        playerController.enabled = true;
+        if (playerController != null) playerController.enabled = true;
     }
 }

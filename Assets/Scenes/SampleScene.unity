@@ -4494,6 +4494,7 @@ Transform:
   - {fileID: 1606517440}
   - {fileID: 789162136}
   - {fileID: 552634537}
+  - {fileID: 1620817499}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &148037184
@@ -11427,12 +11428,12 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
+  m_fontSize: 0.3
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -15017,7 +15018,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &552634537
 Transform:
   m_ObjectHideFlags: 0
@@ -20365,12 +20366,12 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
+  m_fontSize: 0.3
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -21604,7 +21605,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &789162136
 Transform:
   m_ObjectHideFlags: 0
@@ -22308,7 +22309,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 802184144}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: -0.7071068}
   m_LocalPosition: {x: -9.02, y: 0, z: 3.91}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -24424,6 +24425,7 @@ GameObject:
   - component: {fileID: 891389817}
   - component: {fileID: 891389816}
   - component: {fileID: 891389819}
+  - component: {fileID: 891389820}
   m_Layer: 0
   m_Name: Cylinder
   m_TagString: Untagged
@@ -24465,8 +24467,8 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.5000001
-  m_Height: 2
+  m_Radius: 0.75
+  m_Height: 2.4
   m_Direction: 1
   m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
 --- !u!23 &891389817
@@ -24541,6 +24543,26 @@ MonoBehaviour:
   controleClick: {fileID: 8147039175535961673}
   panelAviso: {fileID: 1893011345}
   playerController: {fileID: 1580096432}
+  duracionMensaje: 1.8
+--- !u!114 &891389820
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 891389814}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6dff026dae0cda4c94c134360d8b506, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PilarPortal
+  color: {r: 0.18039216, g: 0.8, b: 0.44313726, a: 1}
+  periodo: 1.8
+  emisionMin: 0.35
+  emisionMax: 1.4
+  velocidadGiro: 25
+  distanciaCerca: 3
+  crearLuz: 1
 --- !u!1 &891540455
 GameObject:
   m_ObjectHideFlags: 0
@@ -44270,14 +44292,48 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3235962355857514462, guid: 2293e30174f475d4f9b2c17022efb018, type: 3}
+      propertyPath: near clip plane
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 3235962355857514462, guid: 2293e30174f475d4f9b2c17022efb018, type: 3}
       propertyPath: m_BackGroundColor.a
       value: 0.019607844
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3235962355857514461, guid: 2293e30174f475d4f9b2c17022efb018, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1540728491}
   m_SourcePrefab: {fileID: 100100000, guid: 2293e30174f475d4f9b2c17022efb018, type: 3}
+--- !u!1 &1540728490 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3235962355857514461, guid: 2293e30174f475d4f9b2c17022efb018, type: 3}
+  m_PrefabInstance: {fileID: 1540728489}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1540728491
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1540728490}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c1a5f480e8648f49a94b390bcf52ff4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CamaraSinParedes
+  pivote: {fileID: 1562808196}
+  radioEsfera: 0.12
+  margen: 0.06
+  distanciaMinima: 0.25
+  velocidadRetorno: 4
+  nearClip: 0.05
+  distanciaOcultarJugador: 0.45
+  capas:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!1 &1543157084
 GameObject:
   m_ObjectHideFlags: 0
@@ -44847,35 +44903,23 @@ MonoBehaviour:
   smoothRotationTime: 0.25
   cameraTransform: {fileID: 1107846753}
   enabledMobileInputs: 0
---- !u!54 &1580096433
-Rigidbody:
+  factorRetroceso: 0.6
+--- !u!114 &1580096433
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1580096429}
-  serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 112
-  m_CollisionDetection: 0
---- !u!136 &1580096434
-CapsuleCollider:
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 571a0c1b802c7224ba62e04365ba2523, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractorJugador
+  tecla: 101
+  anguloMinimo: -0.1
+--- !u!143 &1580096434
+CharacterController:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -44889,14 +44933,16 @@ CapsuleCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 2
+  serializedVersion: 3
+  m_Height: 1.884596
   m_Radius: 0.3017869
-  m_Height: 1.8845962
-  m_Direction: 1
-  m_Center: {x: -0.044522762, y: 0.9061368, z: 0}
+  m_SlopeLimit: 45
+  m_StepOffset: 0.25
+  m_SkinWidth: 0.03017869
+  m_MinMoveDistance: 0
+  m_Center: {x: 0, y: 0.91, z: 0}
 --- !u!1 &1584848892
 GameObject:
   m_ObjectHideFlags: 0
@@ -45762,7 +45808,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1606517440
 Transform:
   m_ObjectHideFlags: 0
@@ -46470,6 +46516,74 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1615440541}
   m_CullTransparentMesh: 1
+--- !u!1 &1620817498
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1620817499}
+  - component: {fileID: 1620817500}
+  m_Layer: 0
+  m_Name: PuertaVidrio_Laboratorio
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1620817499
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1620817498}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -10.3, y: 0, z: 4.13}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 145626161}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1620817500
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1620817498}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96a31f7a515701c499e34507fcf84ccf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PuertaInteractiva
+  nombreEspacio: Laboratorio
+  textoAbrir: Entrar al Laboratorio
+  textoCerrar: Cerrar puertas de vidrio
+  hojas:
+  - hoja: {fileID: 6695095374497902718}
+    bisagra: {x: -10.283, y: 1, z: 3.325}
+    extremoLibre: {x: -10.283, y: 1, z: 4.1165233}
+    angulo: 71.35904
+    alejarDelJugador: 1
+    sentido: -1
+    piezasExtra: []
+  - hoja: {fileID: 3529584571253506773}
+    bisagra: {x: -10.344, y: 1, z: 4.936}
+    extremoLibre: {x: -10.344, y: 1, z: 4.144454}
+    angulo: 60
+    alejarDelJugador: 1
+    sentido: 1
+    piezasExtra: []
+  duracion: 0.9
+  radio: 1.4
+  permitirCerrar: 1
+  avisarAlAbrir: 0
+  sonido: {fileID: 0}
+  volumen: 0.6
 --- !u!1 &1628186487
 GameObject:
   m_ObjectHideFlags: 0
@@ -55310,8 +55424,109 @@ PrefabInstance:
     - {fileID: -6684127614765651529, guid: a5a23a962f65cc54da2b75eb1620abfb, type: 3}
     - {fileID: 2780080790718666939, guid: a5a23a962f65cc54da2b75eb1620abfb, type: 3}
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1804243535234969166, guid: a5a23a962f65cc54da2b75eb1620abfb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1973843831}
+    - targetCorrespondingSourceObject: {fileID: -3799360099857250247, guid: a5a23a962f65cc54da2b75eb1620abfb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1973843830}
   m_SourcePrefab: {fileID: 100100000, guid: a5a23a962f65cc54da2b75eb1620abfb, type: 3}
+--- !u!4 &1973843823 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -7407647087375068100, guid: a5a23a962f65cc54da2b75eb1620abfb, type: 3}
+  m_PrefabInstance: {fileID: 1973843822}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1973843824 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -2872913008358274039, guid: a5a23a962f65cc54da2b75eb1620abfb, type: 3}
+  m_PrefabInstance: {fileID: 1973843822}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1973843825 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -3799360099857250247, guid: a5a23a962f65cc54da2b75eb1620abfb, type: 3}
+  m_PrefabInstance: {fileID: 1973843822}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1973843826 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2764305880061463291, guid: a5a23a962f65cc54da2b75eb1620abfb, type: 3}
+  m_PrefabInstance: {fileID: 1973843822}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1973843827 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -2714100159741123778, guid: a5a23a962f65cc54da2b75eb1620abfb, type: 3}
+  m_PrefabInstance: {fileID: 1973843822}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1973843828 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1804243535234969166, guid: a5a23a962f65cc54da2b75eb1620abfb, type: 3}
+  m_PrefabInstance: {fileID: 1973843822}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1973843829 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 999890260201703364, guid: a5a23a962f65cc54da2b75eb1620abfb, type: 3}
+  m_PrefabInstance: {fileID: 1973843822}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1973843830
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1973843825}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96a31f7a515701c499e34507fcf84ccf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PuertaInteractiva
+  nombreEspacio: Consultorio 2
+  textoAbrir: Abrir Consultorio 2
+  textoCerrar: Cerrar puerta
+  hojas:
+  - hoja: {fileID: 1973843824}
+    bisagra: {x: -15.573, y: 1, z: 4.454}
+    extremoLibre: {x: -16.243, y: 1, z: 4.454}
+    angulo: 95
+    alejarDelJugador: 1
+    sentido: 1
+    piezasExtra:
+    - {fileID: 1973843823}
+  duracion: 0.7
+  radio: 1
+  permitirCerrar: 1
+  avisarAlAbrir: 1
+  sonido: {fileID: 0}
+  volumen: 0.6
+--- !u!114 &1973843831
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1973843828}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96a31f7a515701c499e34507fcf84ccf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PuertaInteractiva
+  nombreEspacio: Consultorio 1
+  textoAbrir: Abrir Consultorio 1
+  textoCerrar: Cerrar puerta
+  hojas:
+  - hoja: {fileID: 1973843827}
+    bisagra: {x: -15.156, y: 1, z: 4.454}
+    extremoLibre: {x: -14.485, y: 1, z: 4.454}
+    angulo: 95
+    alejarDelJugador: 1
+    sentido: 1
+    piezasExtra:
+    - {fileID: 1973843826}
+  duracion: 0.7
+  radio: 1
+  permitirCerrar: 1
+  avisarAlAbrir: 1
+  sonido: {fileID: 0}
+  volumen: 0.6
 --- !u!1 &1976273676
 GameObject:
   m_ObjectHideFlags: 0
@@ -57107,12 +57322,12 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
+  m_fontSize: 0.3
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -60055,6 +60270,7 @@ GameObject:
   - component: {fileID: 7795156479126989019}
   - component: {fileID: 1937254839726412880}
   - component: {fileID: 7198760014624788212}
+  - component: {fileID: 7795156479126989020}
   m_Layer: 0
   m_Name: PuertaBodega
   m_TagString: Untagged
@@ -61354,8 +61570,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5956820829532511396}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.6277923, y: 0.3253873, z: 0.3253873, w: 0.6277923}
-  m_LocalPosition: {x: -8.134, y: 0, z: -6.73}
+  m_LocalRotation: {x: -0.70710677, y: -0.00017511845, z: -0.00017511845, w: 0.70710677}
+  m_LocalPosition: {x: 0.46480274, y: 0, z: 0.021789074}
   m_LocalScale: {x: 100.000015, y: 100.00003, z: 100.00003}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -63175,8 +63391,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2455383415396371775}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.57431185, y: -0.4125118, z: -0.41251191, w: 0.5743117}
-  m_LocalPosition: {x: -3.671, y: -0, z: 12.484}
+  m_LocalRotation: {x: -0.7071069, y: -0.00011226535, z: -0.00011226535, w: 0.7071067}
+  m_LocalPosition: {x: 0.5089588, y: 0, z: -0.012582779}
   m_LocalScale: {x: 100, y: 100, z: 100.00003}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -63307,6 +63523,7 @@ GameObject:
   - component: {fileID: 2546357057055677440}
   - component: {fileID: 5525102545464616270}
   - component: {fileID: 8132115569057261199}
+  - component: {fileID: 8132115569057261200}
   m_Layer: 0
   m_Name: PuertaSalaSillones
   m_TagString: Untagged
@@ -63865,6 +64082,36 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1437523152110614191}
   m_Mesh: {fileID: -7105445117436237668, guid: a5a23a962f65cc54da2b75eb1620abfb, type: 3}
+--- !u!114 &7795156479126989020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1437523152110614191}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96a31f7a515701c499e34507fcf84ccf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PuertaInteractiva
+  nombreEspacio: Archivo
+  textoAbrir: Abrir el Archivo
+  textoCerrar: Cerrar puerta
+  hojas:
+  - hoja: {fileID: 1800667231567367208}
+    bisagra: {x: -13.131, y: 1, z: 5.602}
+    extremoLibre: {x: -12.461, y: 1, z: 5.602}
+    angulo: 95
+    alejarDelJugador: 1
+    sentido: 1
+    piezasExtra:
+    - {fileID: 1973843829}
+  duracion: 0.7
+  radio: 1
+  permitirCerrar: 1
+  avisarAlAbrir: 0
+  sonido: {fileID: 0}
+  volumen: 0.6
 --- !u!224 &7798866453583931848
 RectTransform:
   m_ObjectHideFlags: 0
@@ -64080,6 +64327,35 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 3824140098585780584, guid: a5a23a962f65cc54da2b75eb1620abfb, type: 3}
+--- !u!114 &8132115569057261200
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7060327169783720324}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96a31f7a515701c499e34507fcf84ccf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PuertaInteractiva
+  nombreEspacio: Consultorio
+  textoAbrir: Abrir el Consultorio
+  textoCerrar: Cerrar puerta
+  hojas:
+  - hoja: {fileID: 4318237070992458514}
+    bisagra: {x: -16.606, y: 1, z: 0.862}
+    extremoLibre: {x: -16.606, y: 1, z: 1.533}
+    angulo: 95
+    alejarDelJugador: 1
+    sentido: 1
+    piezasExtra: []
+  duracion: 0.7
+  radio: 1
+  permitirCerrar: 1
+  avisarAlAbrir: 0
+  sonido: {fileID: 0}
+  volumen: 0.6
 --- !u!1 &8147039175535961673
 GameObject:
   m_ObjectHideFlags: 0
