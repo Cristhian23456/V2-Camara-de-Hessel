@@ -232,15 +232,7 @@ public class BeckInventory : MonoBehaviour
 
     IEnumerator escribirTexto(string texto, TextMeshProUGUI txt, GameObject btn)
     {
-        txt.maxVisibleCharacters = 0;
-        txt.text = texto;
-        txt.richText = true;
-        for (int i = 0; i < texto.ToCharArray().Length; i++)
-        {
-            txt.maxVisibleCharacters++;
-            yield return new WaitForSeconds(35f / 500);
-
-        }
+        yield return TextoEscrito.Escribir(txt, texto, TextoEscrito.NORMAL);
         if (btn != null)
         {
             btn.gameObject.SetActive(true);

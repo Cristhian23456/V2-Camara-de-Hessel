@@ -128,15 +128,7 @@ public class FinalizarCaso : MonoBehaviour
 
     IEnumerator escribirTexto(string texto, TextMeshProUGUI txt,GameObject panelOpciones)
     {
-        txt.maxVisibleCharacters = 0;
-        txt.text = texto;
-        txt.richText = true;
-        for (int i = 0; i < texto.ToCharArray().Length; i++)
-        {
-            txt.maxVisibleCharacters++;
-            yield return new WaitForSeconds(2f / 500);
-
-        }
+        yield return TextoEscrito.Escribir(txt, texto, TextoEscrito.RAPIDO);
         panelOpciones.SetActive(true);
 
    

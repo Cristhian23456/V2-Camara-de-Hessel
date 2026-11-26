@@ -78,14 +78,7 @@ public class IntroController : MonoBehaviour
 
     IEnumerator escribirIntro(string texto)
     {
-        txtIntroduccion.maxVisibleCharacters = 0;
-        txtIntroduccion.text = texto;
-        txtIntroduccion.richText = true;
-        for (int i = 0; i < texto.ToCharArray().Length; i++)
-        {
-            txtIntroduccion.maxVisibleCharacters++;
-            yield return new WaitForSeconds(2f / 500);
-        }
+        yield return TextoEscrito.Escribir(txtIntroduccion, texto, TextoEscrito.RAPIDO);
         btnAceptar.SetActive(true);
       
     }
