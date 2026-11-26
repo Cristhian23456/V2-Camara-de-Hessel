@@ -130,3 +130,7 @@ STUDY_NOTES_*.md
 # Documentación personal (solo local)
 /Claude outputs/
 /CHANGELOG_*.md
+
+# Token de autenticación de campus3d (#14): nunca subirlo
+/Assets/Resources/Config/WebServiceConfig.json
+/Assets/Resources/Config/WebServiceConfig.json.meta

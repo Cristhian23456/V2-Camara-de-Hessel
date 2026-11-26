@@ -23,6 +23,8 @@ namespace MS2S.VirtopsiaVR
         public const string WS_LOGIN = "/api/authentication";
         // Segundos máximos de espera; evita quedarse trabado en la pantalla de espera.
         public const int REQUEST_TIMEOUT_SECONDS = 15;
+        // Ruta dentro de Resources del archivo con el token (no se sube a git; ver #14)
+        public const string CONFIG_RESOURCE_PATH = "Config/WebServiceConfig";
 
         #endregion
 
@@ -37,6 +39,44 @@ namespace MS2S.VirtopsiaVR
         #endregion
 
         private bool enCurso;
+
+        [Serializable]
+        private class WebServiceConfig
+        {
+            public string authorizationToken;
+        }
+
+        private static string cachedToken;
+
+        /// <summary>
+        /// Lee el token de Assets/Resources/Config/WebServiceConfig.json, que git ignora.
+        /// Plantilla: Assets/LoginLab/WebServiceConfig.example.json
+        /// </summary>
+        private static string ObtenerToken()
+        {
+            if (!string.IsNullOrEmpty(cachedToken)) return cachedToken;
+
+            TextAsset archivo = Resources.Load<TextAsset>(CONFIG_RESOURCE_PATH);
+            if (archivo == null)
+            {
+                Debug.LogError("[WebService] Falta Assets/Resources/" + CONFIG_RESOURCE_PATH + ".json. " +
+                               "Copia Assets/LoginLab/WebServiceConfig.example.json a esa ruta y coloca el token.");
+                return null;
+            }
+
+            WebServiceConfig config = null;
+            try { config = JsonUtility.FromJson<WebServiceConfig>(archivo.text); }
+            catch (Exception e) { Debug.LogError("[WebService] WebServiceConfig.json inválido: " + e.Message); }
+
+            if (config == null || string.IsNullOrWhiteSpace(config.authorizationToken))
+            {
+                Debug.LogError("[WebService] WebServiceConfig.json no tiene 'authorizationToken'.");
+                return null;
+            }
+
+            cachedToken = config.authorizationToken.Trim();
+            return cachedToken;
+        }
 
         #region Public Methods
 
@@ -57,7 +97,7 @@ namespace MS2S.VirtopsiaVR
                 LoginResultado final = resultado;
                 if (resultado == LoginResultado.Ok)
                 {
-                    final = GuardarDatosUsuario(userName, password, rememberMe, data);
+                    final = GuardarDatosUsuario(userName, rememberMe, data);
                 }
 
                 LogFeedback(MensajePara(final));
@@ -94,7 +134,7 @@ namespace MS2S.VirtopsiaVR
             return FindAnyObjectByType<LoginUsuario>();
         }
 
-        private LoginResultado GuardarDatosUsuario(string userName, string password, bool rememberMe, byte[] data)
+        private LoginResultado GuardarDatosUsuario(string userName, bool rememberMe, byte[] data)
         {
             UserData userData;
             try
@@ -114,9 +154,10 @@ namespace MS2S.VirtopsiaVR
                 return LoginResultado.ErrorServidor;
             }
 
-            // Datos básicos
+            // Datos básicos. La contraseña NO se guarda (#14): PlayerPrefs es texto plano
+            // (registro de Windows). Se borra la que hayan dejado versiones anteriores.
             PlayerPrefs.SetString(Storage.userNamePrefKey, userName);
-            PlayerPrefs.SetString(Storage.passwordPrefKey, password);
+            PlayerPrefs.DeleteKey(Storage.passwordPrefKey);
             PlayerPrefs.SetInt(Storage.rememberMePrefKey, rememberMe ? 1 : 0);
 
             // Primer nombre y primer apellido (tolerante a campos vacíos)
@@ -162,6 +203,13 @@ namespace MS2S.VirtopsiaVR
         {
             LogFeedback("Esperando...");
 
+            string token = ObtenerToken();
+            if (token == null)
+            {
+                result(LoginResultado.ErrorServidor, null);
+                yield break;
+            }
+
             using (var uwr = new UnityWebRequest(url, "POST"))
             {
                 byte[] jsonToSend = new System.Text.UTF8Encoding().GetBytes(json);
@@ -169,7 +217,7 @@ namespace MS2S.VirtopsiaVR
                 uwr.downloadHandler = new DownloadHandlerBuffer();
                 uwr.timeout = REQUEST_TIMEOUT_SECONDS;
                 uwr.SetRequestHeader("Content-Type", "application/json");
-                uwr.SetRequestHeader("Authorization", "dKp9FfIjJL85AfuS8aZzHYUxlQw09AHW6EoiE4o7sZds3qFVuwpCxXFegA6AxGZ");
+                uwr.SetRequestHeader("Authorization", token);
                 uwr.SetRequestHeader("Accept", "application/json");
 
                 Debug.Log("POST: " + uwr.url);
