@@ -183,14 +183,7 @@ public class PresentarInfoSalas : MonoBehaviour
 
     IEnumerator escribirInformacion(string texto,GameObject button)
     {
-        txtCuerpoSala.maxVisibleCharacters = 0;
-        txtCuerpoSala.text = texto;
-        txtCuerpoSala.richText = true;
-        for (int i = 0; i < texto.ToCharArray().Length; i++)
-        {
-            txtCuerpoSala.maxVisibleCharacters++;
-            yield return new WaitForSeconds(2f / 500);
-        }
+        yield return TextoEscrito.Escribir(txtCuerpoSala, texto, TextoEscrito.RAPIDO);
         if(gameObject.name== "Entrada3")
         {
             btnComenzar.SetActive(true);

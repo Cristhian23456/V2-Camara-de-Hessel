@@ -582,16 +582,40 @@ public class DialogosManager : MonoBehaviour
         if (normalObj != null) normalObj.SetActive(!llorando);
     }
 
+    // ---------------------------------------------------------------------
+    // Efecto máquina de escribir (#4)
+    // - Clic, Espacio o Enter muestran todo el texto de inmediato.
+    // - El tiempo de lectura depende del largo del texto (antes eran 3 s fijos)
+    //   y también se puede saltar con clic, Espacio o Enter.
+    // - El texto se achica solo si no cabe en el cuadro (auto-size).
+    // ---------------------------------------------------------------------
+    [Header("Diálogos (#4)")]
+    [SerializeField, Tooltip("Segundos por carácter en los diálogos")]
+    private float segundosPorCaracterDialogo = 0.07f;
+    [SerializeField, Tooltip("Segundos por carácter en las preguntas")]
+    private float segundosPorCaracterPregunta = 0.05f;
+    [SerializeField, Tooltip("Tiempo mínimo de lectura tras escribir un diálogo")]
+    private float lecturaMinima = 2f;
+    [SerializeField, Tooltip("Tiempo máximo de lectura tras escribir un diálogo")]
+    private float lecturaMaxima = 6f;
+    [SerializeField, Tooltip("Segundos de lectura extra por carácter")]
+    private float lecturaPorCaracter = 0.03f;
+    [SerializeField, Tooltip("Tamaño mínimo del texto, relativo al original, cuando no cabe")]
+    private float autoSizeMinimo = 0.7f;
+
+    private IEnumerator EscribirConEfecto(TextMeshProUGUI txt, string texto, float segundosPorCaracter)
+    {
+        return TextoEscrito.Escribir(txt, texto, segundosPorCaracter, autoSizeMinimo);
+    }
+
+    private IEnumerator EsperarLectura(string texto)
+    {
+        return TextoEscrito.EsperarLectura(texto, lecturaMinima, lecturaMaxima, lecturaPorCaracter);
+    }
+
     IEnumerator escribirTexto(string texto, TextMeshProUGUI txt, GameObject btn)
     {
-        txt.maxVisibleCharacters = 0;
-        txt.text = texto;
-        txt.richText = true;
-        for (int i = 0; i < texto.ToCharArray().Length; i++)
-        {
-            txt.maxVisibleCharacters++;
-            yield return new WaitForSeconds(35f / 500); // Increased typewriter speed (x1.43 of slow speed) to align with character timings
-        }
+        yield return EscribirConEfecto(txt, texto, segundosPorCaracterDialogo);
 
         if (texto == "Gracias, doctor. A veces siento que no puedo controlar estos pensamientos y emociones, los cuales me hacen sentir sumamente desanimada.")
         {
@@ -602,7 +626,7 @@ public class DialogosManager : MonoBehaviour
         {
             if (txt.gameObject.name != "txt_retroalimentacion")
             {
-                yield return new WaitForSeconds(3f);
+                yield return EsperarLectura(texto);
                 if (fase == "Inicial")
                 {
                     funcionalidadBtnSiguiente();
@@ -623,8 +647,8 @@ public class DialogosManager : MonoBehaviour
             {
                 if (fase == "Inicial")
                 {
-                    // Auto-advance after 4 seconds for retroalimentacion (like Attention Point) in Session 1
-                    yield return new WaitForSeconds(4f);
+                    // Auto-avance de la retroalimentación en la fase inicial (tiempo según el largo)
+                    yield return EsperarLectura(texto);
                     if (ui_retroalimentacion != null) ui_retroalimentacion.SetActive(false);
                     if (btn != null) btn.SetActive(false);
                     contador++;
@@ -1081,14 +1105,7 @@ public class DialogosManager : MonoBehaviour
 
     IEnumerator escribirPregunta(string texto, TextMeshProUGUI txt, Preguntas pregunta)
     {
-        txt.maxVisibleCharacters = 0;
-        txt.text = texto;
-        txt.richText = true;
-        for (int i = 0; i < texto.ToCharArray().Length; i++)
-        {
-            txt.maxVisibleCharacters++;
-            yield return new WaitForSeconds(25f / 500);
-        }
+        yield return EscribirConEfecto(txt, texto, segundosPorCaracterPregunta);
         uiPreguntas.SetActive(true);
         ActivarBotones(pregunta.respuestas.Length, pregunta);
         container_preguntas.gameObject.SetActive(true);
