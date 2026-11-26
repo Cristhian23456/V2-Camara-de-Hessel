@@ -15,7 +15,6 @@ public class LoginUsuario : MonoBehaviour
     public TextMeshProUGUI outputText;
     public Button btnLogin;
     public static string User_Email;
-    public static string User_Password;
     public GameObject Panel_Opcion_Escena;
     public GameObject Panel_Espera;
     public GameObject Panel_Datos_Incorrectos;

@@ -50,6 +50,7 @@ public class HistoryManager : MonoBehaviour
         // Manejar la lógica cuando la lista de historiales esté lista
         Debug.Log("Historial listo con " + historialList.Count + " elementos.");
         panelLoading.SetActive(false);
+        if (historialList == null) historialList = new List<Historial>();
         CargarHistorial(historialList.Count, historialList);
         
         // Aquí puedes realizar cualquier acción que necesites con la lista de historiales
@@ -57,6 +58,8 @@ public class HistoryManager : MonoBehaviour
 
     public void CargarHistorial(int cantidad, List<Historial> listHistorial)
     {
+        // Al recargar, la selección anterior ya no es válida
+        btnCargarPartida.interactable = false;
 
         if (listItems.Count >= cantidad)
         {
@@ -70,7 +73,11 @@ public class HistoryManager : MonoBehaviour
                     listItems[i].GetChild(2).GetComponent<TextMeshProUGUI>().text = "Fase " + listHistorial[i].fase;
                     listItems[i].GetChild(3).GetComponent<TextMeshProUGUI>().text = listHistorial[i].progreso;
                     Historial historial = listHistorial[i];
-                    listItems[i].GetComponent<Button>().onClick.AddListener(()=>
+                    Button itemButton = listItems[i].GetComponent<Button>();
+                    // Los ítems se reutilizan: quitar los listeners de cargas anteriores
+                    // para que el clic no ejecute closures con historiales viejos (#17)
+                    itemButton.onClick.RemoveAllListeners();
+                    itemButton.onClick.AddListener(()=>
                     {
                         DarFuncionItemHistorial(historial);
                     });
@@ -102,6 +109,7 @@ public class HistoryManager : MonoBehaviour
     {
 
 
+        if (string.IsNullOrEmpty(fechaHora)) return "";
         string[] partes = fechaHora.Split('T');
         string fecha = partes[0];
 
